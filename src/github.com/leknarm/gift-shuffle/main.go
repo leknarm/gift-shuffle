@@ -3,7 +3,7 @@ package main
 import (
    "math/rand"
    "time"
-// "net/smtp"
+   "net/smtp"
    "encoding/json"
    "io/ioutil"
    "net/mail"
@@ -11,6 +11,7 @@ import (
    "fmt"
    "log"
    "os"
+   "github.com/howeyc/gopass"
 )
 
 type User struct {
@@ -19,7 +20,9 @@ type User struct {
 }
 
 type Users struct {
-   Users []User
+   Subject  string
+   Message  string
+   Users    []User
 }
  
 func encodeRFC2047(String string) string{
@@ -29,13 +32,30 @@ func encodeRFC2047(String string) string{
 }
  
 func main() {
-   var arg = os.Args[1]
-   fmt.Println(arg)
-
    var u Users
    var m = make(map[string]string)
+   var email string
+   var host = "smtp.gmail.com:587"
 
-   file, err := ioutil.ReadFile("/Users/Tantai/GitHub/src/github.com/leknarm/gift-shuffle/template.json")
+   fmt.Println(len(os.Args))
+
+   if len(os.Args) == 1 {
+      log.Fatalf("Not found template file argument.")
+   }
+
+   fmt.Print("Email: ")
+   _, err := fmt.Scanf("%s\n", &email)
+   if err != nil {
+      log.Fatal(err)
+   }
+
+   fmt.Print("Password: ")
+   pass := gopass.GetPasswd()
+
+   arg := os.Args[1]
+   
+
+   file, err := ioutil.ReadFile(arg)
    if err != nil {
       log.Fatal(err)
    }
@@ -56,19 +76,19 @@ func main() {
 
    var members = shuffle(keys)
 
-   // auth := smtp.PlainAuth("", "xxx@leknarm.com", "xxx", "smtp.gmail.com")
-   // subject := "Subject: Test New Year Cerebration\r\n\r\n"
+   auth := smtp.PlainAuth("", email, string(pass), "smtp.gmail.com")
+   subject := u.Subject
  
    for i, _ := range members {
       if i != len(members) - 1 {
-         message := "Hi,\r\n\r\nYour buddy is " + m[members[i]] + "\r\n\r\nPlease by a gift price > 550 baht and send to your buddy on new year party. So please keep this secret.!!!"
-         fmt.Println("\n\nsend mail to " + members[i+1] + " with message: " + message)
-         // smtp.SendMail("smtp.gmail.com:587", auth, "xxx@leknarm.com", []string{members[i+1]}, []byte(subject + message))
+         message := fmt.Sprintf(u.Message, m[members[i+1]], m[members[i]])
+         fmt.Println(message)
+         smtp.SendMail(host, auth, email, []string{members[i+1]}, []byte(subject + message))
       }
    }
-   message := "Hi,\r\n\r\nYour buddy is " + m[members[len(members) - 1]] + "\r\n\r\nPlease by a gift price > 550 baht and send to your buddy in the new year party. So please keep this secret.!!!"
-   fmt.Println("\n\nsend mail to " + members[0] + "with message: " + message)
-   // smtp.SendMail("smtp.gmail.com:587", auth, "xxx@leknarm.com", []string{members[0]}, []byte(subject + message))
+   message := fmt.Sprintf(u.Message, m[members[0]], m[members[len(members) - 1]])
+   fmt.Println(message)
+   smtp.SendMail(host, auth, email, []string{members[0]}, []byte(subject + message))
 }
  
 func shuffle(members []string) []string {
