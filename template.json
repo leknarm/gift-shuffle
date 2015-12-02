@@ -1,0 +1,28 @@
+{
+   "Users": [
+      {
+         "Email": "john@leknarm.com",
+         "Name": "John"
+      },
+      {
+         "Email": "gale@leknarm.com",
+         "Name": "Gale"
+      },
+      {
+         "Email": "tantai@leknarm.com",
+         "Name": "Tantai"
+      },
+      {
+         "Email": "mark@leknarm.com",
+         "Name": "Mark"
+      },
+      {
+         "Email": "ploy@leknarm.com",
+         "Name": "Ploy"
+      },
+      {
+         "Email": "bill@leknarm.com",
+         "Name": "Bill"
+      }
+   ]
+}
